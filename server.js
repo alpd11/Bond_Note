@@ -8,6 +8,11 @@ const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
 
+// Serve a basic message for browser visits
+app.get("/", (req, res) => {
+    res.send("WebSocket Server is Running!");
+});
+
 // WebSocket Server
 const wss = new WebSocketServer({ server });
 
@@ -17,7 +22,7 @@ wss.on("connection", (ws) => {
     ws.on("message", (data) => {
         console.log("Received:", data.toString());
 
-        // Broadcast to all clients
+        // Broadcast message to all connected clients
         wss.clients.forEach((client) => {
             if (client !== ws && client.readyState === 1) {
                 client.send(data);
