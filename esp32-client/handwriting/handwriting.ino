@@ -1,42 +1,62 @@
+#include <ArduinoWebsockets.h>
 #include <WiFi.h>
-#include <WebSocketsClient.h>
-#include <secret.h>
 
-WebSocketsClient webSocket;
+const char* ssid = "CE-Hub-Student";                                        // WiFi SSID
+const char* password = "casa-ce-gagarin-public-service";                    // WiFi Password
+const char* websockets_server_host = "hmltry1-1e722cd26d62.herokuapp.com";  // WebSocket Address
+const uint16_t websockets_server_port = 80;                                 // WebSocket Port
 
-void webSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
-  switch(type) {
-    case WStype_DISCONNECTED:
-      Serial.println("Disconnected!");
-      break;
-    case WStype_CONNECTED:
-      Serial.println("Connected to server");
-      break;
-    case WStype_TEXT:
-      Serial.printf("Received: %s\n", payload);
-      break;
-  }
-}
+using namespace websockets;
+
+WebsocketsClient client;
+unsigned long lastSendTime = 0;  // Record the time of the last dispatch
 
 void setup() {
   Serial.begin(115200);
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  WiFi.begin(ssid, password);
 
-  while(WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
+  // Waiting for WiFi connection
+  for (int i = 0; i < 10 && WiFi.status() != WL_CONNECTED; i++) {
+  Serial.print(".");
+  delay(1000);
   }
-  Serial.println("\nWiFi Connected");
 
-  webSocket.beginSSL(WS_SERVER, WS_PORT, "/");
-  webSocket.onEvent(webSocketEvent);
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("❌ No Wifi!");
+    return;
+  }
+
+  Serial.println("\n✅ Connected to Wifi, Connecting to server...");
+
+  // Connect WebSocket Server
+  bool connected = client.connect(websockets_server_host, websockets_server_port, "/");
+  if (connected) {
+    Serial.println("✅ WebSocket Connected!");
+    client.send("Hello Server");
+  } else {
+    Serial.println("❌ WebSocket Not Connected!");
+  }
+
+  // Habdle messages received from WebSocket
+  client.onMessage([&](WebsocketsMessage message) {
+    Serial.print("📩 Got Message: ");
+    Serial.println(message.data());
+  });
 }
 
 void loop() {
-  webSocket.loop();
-  
-  if(Serial.available() > 0) {
-    String input = Serial.readStringUntil('\n');
-    webSocket.sendTXT(input);
+  // Let the WebSocket client check the message
+  if (client.available()) {
+  client.poll();
   }
+
+  // A message is sent every 1 second
+  if (millis() - lastSendTime >= 1000) {
+  lastSendTime = millis();
+  String message = "ESP32 发送的数据: " + String(millis());
+  Serial.println("📤 发送消息: " + message);
+  client.send(message);
+  }
+
+  delay(10);  // reduce CPU load
 }
