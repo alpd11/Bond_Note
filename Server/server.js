@@ -37,10 +37,11 @@ const server = http.createServer((req, res) => {
 const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws) => {
-  console.log('New client connected');
+  console.error(`New client connected, total clients: ${wss.clients.size}`);
 
   ws.on('message', (message) => {
     console.log('Received:', message.toString());
+    console.error('Received (stderr):', message.toString()); //双重检查
 
     // 广播消息给所有客户端
     wss.clients.forEach(client => {
@@ -52,6 +53,7 @@ wss.on('connection', (ws) => {
 
   ws.on('close', () => {
     console.log('Client disconnected');
+    console.error('Client disconnected');
   });
 });
 
