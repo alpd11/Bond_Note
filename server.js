@@ -1,7 +1,6 @@
 const express = require("express");
 const { WebSocketServer } = require("ws");
-const fs = require("fs");
-const path = require("path");
+const mongoose = require("mongoose");
 require("dotenv").config();
 
 const PORT = process.env.PORT || 3000;
@@ -10,9 +9,24 @@ const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
 
-// Serve a basic response for browser requests
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log("MongoDB Connected"))
+    .catch(err => console.error("MongoDB Connection Error:", err));
+
+// Define Schema
+const DataSchema = new mongoose.Schema({
+    x: Number,
+    y: Number,
+    pressure: Number,
+    timestamp: { type: Date, default: Date.now }
+});
+
+const DataModel = mongoose.model("Data", DataSchema);
+
+// Serve a basic message for browser requests
 app.get("/", (req, res) => {
-    res.send("WebSocket Server is Running! JSON data is stored.");
+    res.send("WebSocket Server is Running! JSON data is stored in MongoDB.");
 });
 
 // WebSocket Server
@@ -26,7 +40,7 @@ wss.on("connection", (ws) => {
 
         try {
             const jsonData = JSON.parse(data);
-            saveJsonToFile(jsonData); // Save JSON data
+            saveJsonToDatabase(jsonData); // Save to database
         } catch (error) {
             console.error("Invalid JSON format:", error);
         }
@@ -42,21 +56,13 @@ wss.on("connection", (ws) => {
     ws.on("close", () => console.log("Client disconnected"));
 });
 
-// Function to save JSON data to a file
-function saveJsonToFile(jsonData) {
-    const filePath = path.join(__dirname, "stored_data.json");
-
-    // Read existing data if file exists
-    let existingData = [];
-    if (fs.existsSync(filePath)) {
-        const fileContents = fs.readFileSync(filePath, "utf-8");
-        existingData = fileContents ? JSON.parse(fileContents) : [];
+// Function to save JSON to MongoDB
+async function saveJsonToDatabase(jsonData) {
+    try {
+        const newData = new DataModel(jsonData);
+        await newData.save();
+        console.log("Data saved to MongoDB:", jsonData);
+    } catch (error) {
+        console.error("Error saving data to MongoDB:", error);
     }
-
-    // Append new data
-    existingData.push(jsonData);
-
-    // Save updated data back to file
-    fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2), "utf-8");
-    console.log("JSON Data saved to stored_data.json");
 }
