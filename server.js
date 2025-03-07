@@ -16,6 +16,7 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
 
 // Define Schema
 const DataSchema = new mongoose.Schema({
+    mac: String,  // MAC Address of the device
     x: Number,
     y: Number,
     pressure: Number,
@@ -23,6 +24,9 @@ const DataSchema = new mongoose.Schema({
 });
 
 const DataModel = mongoose.model("Data", DataSchema);
+
+// Store connected clients and their MAC addresses
+const clients = new Map();
 
 // Serve a basic message for browser requests
 app.get("/", (req, res) => {
@@ -33,27 +37,65 @@ app.get("/", (req, res) => {
 const wss = new WebSocketServer({ server });
 
 wss.on("connection", (ws) => {
-    console.log("New client connected");
+    console.log("New client attempting connection...");
 
-    ws.on("message", (data) => {
-        console.log("Received:", data.toString());
-
+    // Wait for the first message to get the MAC address
+    ws.once("message", (data) => {
         try {
             const jsonData = JSON.parse(data);
-            saveJsonToDatabase(jsonData); // Save to database
-        } catch (error) {
-            console.error("Invalid JSON format:", error);
-        }
 
-        // Broadcast message to all connected clients
-        wss.clients.forEach((client) => {
-            if (client !== ws && client.readyState === 1) {
-                client.send(data);
+            // Ensure the message contains a MAC address
+            if (!jsonData.mac) {
+                console.error("No MAC address provided. Closing connection.");
+                ws.close();
+                return;
             }
-        });
-    });
 
-    ws.on("close", () => console.log("Client disconnected"));
+            const macAddress = jsonData.mac;
+            
+            // Prevent duplicate MAC connections
+            if (clients.has(macAddress)) {
+                console.warn(`Device with MAC ${macAddress} is already connected.`);
+                ws.send(JSON.stringify({ error: "Device already connected" }));
+                ws.close();
+                return;
+            }
+
+            // Register the new connection
+            clients.set(macAddress, ws);
+            console.log(`Device with MAC ${macAddress} connected.`);
+
+            // Handle incoming messages
+            ws.on("message", (message) => {
+                console.log(`Received from ${macAddress}:`, message.toString());
+
+                try {
+                    const parsedData = JSON.parse(message);
+                    parsedData.mac = macAddress; // Attach MAC address to data
+                    saveJsonToDatabase(parsedData); // Save to database
+                } catch (error) {
+                    console.error("Invalid JSON format:", error);
+                }
+
+                // Broadcast message to all connected clients except sender
+                wss.clients.forEach((client) => {
+                    if (client !== ws && client.readyState === 1) {
+                        client.send(message);
+                    }
+                });
+            });
+
+            // Handle disconnection
+            ws.on("close", () => {
+                clients.delete(macAddress);
+                console.log(`Device with MAC ${macAddress} disconnected.`);
+            });
+
+        } catch (error) {
+            console.error("Error processing connection:", error);
+            ws.close();
+        }
+    });
 });
 
 // Function to save JSON to MongoDB
