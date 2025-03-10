@@ -15,12 +15,20 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
     .catch(err => console.error("MongoDB Connection Error:", err));
 
 // Define Schema
+const StrokeSchema = new mongoose.Schema({
+    stroke: Number,  // 笔画编号
+    points: [        // 点集合
+        {
+            x: Number,  // X 坐标
+            y: Number   // Y 坐标
+        }
+    ]
+});
+
 const DataSchema = new mongoose.Schema({
-    mac: String,  // MAC Address of the device
-    x: Number,
-    y: Number,
-    pressure: Number,
-    timestamp: { type: Date, default: Date.now }
+    mac: String,  // 设备的 MAC 地址
+    strokes: [StrokeSchema],  // 笔画数组
+    timestamp: { type: Date, default: Date.now }  // 时间戳
 });
 
 const DataModel = mongoose.model("Data", DataSchema);
