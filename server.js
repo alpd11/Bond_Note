@@ -26,7 +26,6 @@ const StrokeSchema = new mongoose.Schema({
 });
 
 const DataSchema = new mongoose.Schema({
-    mac: String,  // 设备的 MAC 地址
     strokes: [StrokeSchema],  // 笔画数组
     timestamp: { type: Date, default: Date.now }  // 时间戳
 });
