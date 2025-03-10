@@ -52,18 +52,26 @@ wss.on("connection", (ws) => {
             }
 
             const macAddress = jsonData.mac;
-            
-            // Prevent duplicate MAC connections
+
+            // Check if the MAC address already exists in the client list
             if (clients.has(macAddress)) {
-                console.warn(`Device with MAC ${macAddress} is already connected.`);
-                ws.send(JSON.stringify({ error: "Device already connected" }));
-                ws.close();
-                return;
+                let existingClient = clients.get(macAddress);
+
+                // If the existing WebSocket connection is still open, prevent duplicate registration
+                if (existingClient && existingClient.readyState === 1) {
+                    console.warn(`Device with MAC ${macAddress} is already connected.`);
+                    ws.send(JSON.stringify({ error: "Device already connected" }));
+                    ws.close();
+                    return;
+                } else {
+                    console.log(`Re-registering device with MAC ${macAddress} (Previous session lost).`);
+                    clients.delete(macAddress); // Remove stale connection
+                }
             }
 
             // Register the new connection
             clients.set(macAddress, ws);
-            console.log(`Device with MAC ${macAddress} connected.`);
+            console.log(`Device with MAC ${macAddress} successfully connected.`);
 
             // Handle incoming messages
             ws.on("message", (message) => {
@@ -85,10 +93,17 @@ wss.on("connection", (ws) => {
                 });
             });
 
-            // Handle disconnection
+            // Handle disconnection properly
             ws.on("close", () => {
-                clients.delete(macAddress);
-                console.log(`Device with MAC ${macAddress} disconnected.`);
+                // Only remove the client if it is still in the list
+                if (clients.get(macAddress) === ws) {
+                    clients.delete(macAddress);
+                    console.log(`Device with MAC ${macAddress} disconnected.`);
+                }
+            });
+
+            ws.on("error", (err) => {
+                console.error(`WebSocket error for ${macAddress}:`, err);
             });
 
         } catch (error) {
