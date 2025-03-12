@@ -14,20 +14,24 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
     .then(() => console.log("MongoDB Connected"))
     .catch(err => console.error("MongoDB Connection Error:", err));
 
-// Define Schema
-const StrokeSchema = new mongoose.Schema({
-    stroke: Number,  
-    points: [        
-        {
-            x: Number,  
-            y: Number   
-        }
-    ]
+// Define Schema for stroke points
+const PointSchema = new mongoose.Schema({
+    x: Number,
+    y: Number
 });
 
+// Define Schema for strokes
+const StrokeSchema = new mongoose.Schema({
+    stroke: Number,  // Stroke ID
+    points: [PointSchema]  // Array of points
+});
+
+// Define Schema for user data
 const DataSchema = new mongoose.Schema({
-    strokes: [StrokeSchema],  
-    timestamp: { type: Date, default: Date.now }  
+    name: String,  // User's name
+    personal_color: String,  // User's selected color
+    strokes: [StrokeSchema],  // Stroke array
+    timestamp: { type: Date, default: Date.now }  // Timestamp
 });
 
 const DataModel = mongoose.model("Data", DataSchema);
@@ -41,15 +45,15 @@ app.get("/", (req, res) => {
 const wss = new WebSocketServer({ server });
 
 wss.on("connection", (ws) => {
-    console.log("New client connected");
+    console.log("New client connected.");
 
     // Handle incoming messages
     ws.on("message", (message) => {
         console.log("Received:", message.toString());
 
         try {
-            const parsedData = JSON.parse(message);
-            saveJsonToDatabase(parsedData); // Save to database
+            const jsonData = JSON.parse(message);
+            saveJsonToDatabase(jsonData); // Save to database
         } catch (error) {
             console.error("Invalid JSON format:", error);
         }
@@ -62,12 +66,11 @@ wss.on("connection", (ws) => {
         });
     });
 
-    // Handle disconnection
+    // Handle client disconnection
     ws.on("close", () => {
-        console.log("Client disconnected");
+        console.log("Client disconnected.");
     });
 
-    // Handle errors
     ws.on("error", (err) => {
         console.error("WebSocket error:", err);
     });
