@@ -90,7 +90,29 @@ async function saveJsonToDatabase(jsonData) {
 // ✅ API Endpoint to Fetch Data from MongoDB
 app.get("/data", async (req, res) => {
     try {
-        const data = await DataModel.find().sort({ timestamp: -1 }).limit(10); // Fetch last 10 records
+        // Fetch data from MongoDB, exclude '_id' field using projection
+        const data = await DataModel.find({}, { _id: 0, "strokes._id": 0, "strokes.points._id": 0 })
+            .sort({ timestamp: -1 })
+            .limit(10);
+
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch data from MongoDB" });
+    }
+});
+
+// ✅ API Endpoint to Fetch Data by Timestamp
+app.get("/data/:timestamp", async (req, res) => {
+    try {
+        const { timestamp } = req.params; // Get timestamp from URL
+
+        // Find the entry that matches the exact timestamp
+        const data = await DataModel.findOne({ timestamp: new Date(timestamp) }, { _id: 0 });
+
+        if (!data) {
+            return res.status(404).json({ error: "No data found for the given timestamp" });
+        }
+
         res.json(data);
     } catch (error) {
         res.status(500).json({ error: "Failed to fetch data from MongoDB" });
