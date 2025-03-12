@@ -86,3 +86,13 @@ async function saveJsonToDatabase(jsonData) {
         console.error("Error saving data to MongoDB:", error);
     }
 }
+
+// ✅ API Endpoint to Fetch Data from MongoDB
+app.get("/data", async (req, res) => {
+    try {
+        const data = await DataModel.find().sort({ timestamp: -1 }).limit(10); // Fetch last 10 records
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch data from MongoDB" });
+    }
+});
