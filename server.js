@@ -100,13 +100,15 @@ app.get("/data", async (req, res) => {
     }
 });
 
-// ✅ API Endpoint to Fetch Full Data by Timestamp (Excluding `_id`)
 app.get("/data/:timestamp", async (req, res) => {
     try {
         const { timestamp } = req.params; // Get timestamp from URL
 
-        // Find the entry that matches the exact timestamp and exclude `_id`
-        const data = await DataModel.findOne({ timestamp: new Date(timestamp) }, { _id: 0 });
+        // Find the entry that matches the exact timestamp and exclude `_id` from all levels
+        const data = await DataModel.findOne(
+            { timestamp: new Date(timestamp) },
+            { _id: 0, "strokes._id": 0, "strokes.points._id": 0 }
+        );
 
         if (!data) {
             return res.status(404).json({ error: "No data found for the given timestamp" });
