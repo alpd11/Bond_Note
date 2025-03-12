@@ -87,13 +87,12 @@ async function saveJsonToDatabase(jsonData) {
     }
 }
 
-// ✅ API Endpoint to Fetch Data from MongoDB
+// ✅ API Endpoint to Fetch Only `timestamp` & `name`
 app.get("/data", async (req, res) => {
     try {
-        // Fetch data from MongoDB, exclude '_id' field using projection
-        const data = await DataModel.find({}, { _id: 0, "strokes._id": 0, "strokes.points._id": 0 })
-            .sort({ timestamp: -1 })
-            .limit(10);
+        const data = await DataModel.find({}, { _id: 0, timestamp: 1, name: 1 })
+            .sort({ timestamp: -1 }) // Sort by latest data first
+            .limit(10); // Limit to last 10 entries
 
         res.json(data);
     } catch (error) {
@@ -101,12 +100,12 @@ app.get("/data", async (req, res) => {
     }
 });
 
-// ✅ API Endpoint to Fetch Data by Timestamp
+// ✅ API Endpoint to Fetch Full Data by Timestamp (Excluding `_id`)
 app.get("/data/:timestamp", async (req, res) => {
     try {
         const { timestamp } = req.params; // Get timestamp from URL
 
-        // Find the entry that matches the exact timestamp
+        // Find the entry that matches the exact timestamp and exclude `_id`
         const data = await DataModel.findOne({ timestamp: new Date(timestamp) }, { _id: 0 });
 
         if (!data) {
