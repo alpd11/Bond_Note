@@ -91,8 +91,7 @@ async function saveJsonToDatabase(jsonData) {
 app.get("/data", async (req, res) => {
     try {
         const data = await DataModel.find({}, { _id: 0, timestamp: 1, name: 1 })
-            .sort({ timestamp: -1 }) // Sort by latest data first
-            .limit(10); // Limit to last 10 entries
+            .sort({ timestamp: -1 });
 
         res.json(data);
     } catch (error) {
