@@ -216,8 +216,8 @@ In the future, the current PLA enclosure printed based on 3D printing technology
 # 🙌 Contributions
 
 - **Sirui Luo:** Hardware selection, circuit construction, PCB design and manufacturing, all software development and deployment, as well as the script, filming, and editing of the project video. Readme file integration.
-- **Jiniming Xia:** Enclosure design, manufacturing, and iteration. Project report integration.
-- **Jennie Hao:** Server selection and setup, background research, and business analysis.
+- **Jiniming Xia:** Enclosure design, manufacturing, and iteration. Project report integration.  Participated in the video as an actress.
+- **Jennie Hao:** Server selection and setup, background research, and business analysis. Script formulation for video. Participated in the video as an actress.
 - **Alp Durmusoglu:** Node.js server code development and MongoDB server setup and maintenance.
 
 ---
