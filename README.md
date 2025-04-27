@@ -40,7 +40,7 @@ In the family scenario, parents often need to establish ‘lightweight’ remote
 
 <p align="center">
   <img src="./picture/Background.png" alt="BondNote_Rendering" /><br>
-  <span style="font-size: 14px; color: gray;"><b>Fig.2</b> BondNote rendering picture</span>
+  <span style="font-size: 14px; color: gray;"><b>Fig.2</b> Target users</span>
 </p>
 
 Therefore, we identified the target users of our product (Fig.2):
@@ -195,6 +195,29 @@ With continuous hardware upgrades, the enclosure was resized several times to en
   <img src="./picture/Light slot.png" alt="BondNote_Rendering"/><br>
   <span style="font-size: 14px; color: gray;"><b>Fig.10</b> Light slot design optimization</span>
 </p>
+
+---
+
+# 🔮 Future Work
+
+## 3.1 Hardware Upgrade
+In the future, we will consider customized and professional PCB production with a high degree of integration to lower costs and improve products' reliability. We will also establish long-term and stable cooperative relations with suppliers to guarantee the security of components' supply chains.
+
+## 3.2 Software Function Expansion
+We plan to provide more writing colors and the function of customization, develop mobile-end supporting App for BondNote, and provide functions like equipment initialization, monitoring and management to further improve users' experience.
+
+## 3.3 Enclosure Improvement
+In the future, the current PLA enclosure printed based on 3D printing technology may be upgraded as wooden materials to better reflect the product's feature of warm emotions and improve the product's market attraction and texture. 
+
+---
+
+# 🙌 Contributions
+
+- **Sirui Luo:** Hardware selection, circuit construction, PCB design and manufacturing, all software development and deployment, as well as the script, filming, and editing of the project video. Readme file integration.
+- **Jiniming Xia:** Enclosure design, manufacturing, and iteration. Project report integration.
+- **Jennie Hao:** Server selection and setup, background research, and business analysis.
+- **Alp Durmusoglu:** Node.js server code development and MongoDB server setup and maintenance.
+
 ---
 
 # 💰 Budget List
