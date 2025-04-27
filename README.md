@@ -25,6 +25,8 @@ BondNote is a connected handwriting device designed to restore emotional warmth 
 - [Getting Started](#-getting-started)
 - [How to use it](#-how-to-use-it)
 - [Product Special Features](#-product-special-features)
+- [Future Work](#-future-work)
+- [Contributions](#-contributions)
 - [Budget List](#-budget-list)
 - [References](#references)
 
