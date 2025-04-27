@@ -96,7 +96,7 @@ To build and run this project, you will need the following hardware:
      - Clone this repository and flash **Bond_Note/BondNote_Code/BondNote.ino** to the ESP32 board
 
 ---
-# 🖥️ How to use it
+# 💻 How to use it
 <p align="center">
   <img src="./picture/Flowchart.png" alt="BondNote_Rendering" /><br>
   <span style="font-size: 14px; color: gray;"><b>Fig.4</b> Functions flowchart of BondNote</span>
