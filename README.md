@@ -23,7 +23,7 @@ BondNote is a connected handwriting device designed to restore emotional warmth 
 
 - [Why BondNote Is Useful](#-why-bondnote-is-useful)
 - [Getting Started](#-getting-started)
-- [How to use it](#how-to-use-it)
+- [How to use it](#-how-to-use-it)
 - [Product Special Features](#-product-special-features)
 - [Future Work](#-future-work)
 - [Contributions](#-contributions)
